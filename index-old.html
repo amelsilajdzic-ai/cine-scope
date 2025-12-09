@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎬</text></svg>">
-  <title>Top 100 Movies - Cine Scope</title>
+  <title>Cine Scope</title>
   <link rel="stylesheet" href="styles.css">
   <style>
     .menu-dropdown {
@@ -51,15 +51,6 @@
     .menu-links a:hover {
       color: #fbbf24;
     }
-    .rank-badge {
-      min-width: 3rem;
-      height: 3rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 1.125rem;
-    }
   </style>
 </head>
 
@@ -70,7 +61,7 @@
     <div class="container mx-auto flex items-center h-14">
       
       <!-- Logo -->
-      <a href="index.html" class="flex items-center bg-yellow-400 hover:bg-yellow-300 border border-yellow-400 rounded-lg shadow-sm h-10 min-w-10 px-3 mr-2 transition-shadow duration-200">
+      <a href="/" class="flex items-center bg-yellow-400 hover:bg-yellow-300 border border-yellow-400 rounded-lg shadow-sm h-10 min-w-10 px-3 mr-2 transition-shadow duration-200">
         <div class="h-6 w-6 text-gray-900">
           🎬
         </div>
@@ -244,141 +235,33 @@
   <!-- Main Content -->
   <main class="container mx-auto py-10 px-4 grow">
     
-    <!-- Page Header -->
-    <div class="mb-10">
-      <h1 class="text-4xl font-bold text-yellow-400 mb-3">Top 100 Movies of All Time</h1>
-      <p class="text-gray-400 text-lg">The greatest films ever made, as rated by critics and audiences worldwide.</p>
-    </div>
-
-    <!-- Movies List -->
-    <div class="space-y-4">
+    <!-- Hero Section with Movie Trailer -->
+    <div class="mb-16">
+      <h1 class="text-4xl font-bold text-yellow-600 text-center mb-8">
+        Explore Movies & TV shows with Cine Scope
+      </h1>
       
-      <!-- Movie Row 1 -->
-      <div class="bg-stone-900 rounded-lg p-4 flex items-center gap-4 hover:bg-stone-800 transition-colors border border-stone-800 hover:border-yellow-400">
-        <div class="rank-badge bg-yellow-400 text-gray-900 rounded-lg flex-shrink-0">1</div>
-        <div class="w-20 h-28 bg-gradient-to-br from-stone-800 to-stone-700 rounded flex-shrink-0 flex items-center justify-center text-3xl">🎬</div>
-        <div class="flex-1">
-          <h3 class="text-white font-bold text-xl mb-1">The Shawshank Redemption</h3>
-          <p class="text-gray-400 text-sm mb-2">1994 • Drama</p>
-          <p class="text-gray-300 text-sm">Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.</p>
+      <!-- Featured Movie Trailer -->
+      <div class="max-w-3xl ml-8">
+        <div class="relative bg-black rounded-xl overflow-hidden shadow-2xl">
+          <video 
+            class="w-full h-80 md:h-96 lg:h-[28rem] object-cover" 
+            autoplay 
+            muted 
+            loop 
+            controls>
+            <source src="./videos/darkknight-tariler.mp4" type="video/mp4">
+            <source src="./videos/darkknight-tariler.webm" type="video/webm">
+            Your browser does not support the video tag.
+          </video>
         </div>
-        <div class="flex flex-col items-end gap-2 flex-shrink-0 ml-auto">
-          <div class="flex items-center bg-yellow-400 text-gray-900 font-bold px-3 py-2 rounded-lg">
-            9.3
-            <svg class="w-5 h-5 ml-1" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-            </svg>
-          </div>
-          <button class="text-gray-400 hover:text-yellow-400 transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5-7 3.5V5z"></path>
-            </svg>
-          </button>
+        
         </div>
+        </div>
+        
       </div>
-
-      <!-- Movie Row 2 -->
-      <div class="bg-stone-900 rounded-lg p-4 flex items-center gap-4 hover:bg-stone-800 transition-colors border border-stone-800 hover:border-yellow-400">
-        <div class="rank-badge bg-yellow-400 text-gray-900 rounded-lg flex-shrink-0">2</div>
-        <div class="w-20 h-28 bg-gradient-to-br from-stone-800 to-stone-700 rounded flex-shrink-0 flex items-center justify-center text-3xl">🎭</div>
-        <div class="flex-1">
-          <h3 class="text-white font-bold text-xl mb-1">The Godfather</h3>
-          <p class="text-gray-400 text-sm mb-2">1972 • Crime, Drama</p>
-          <p class="text-gray-300 text-sm">The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.</p>
-        </div>
-        <div class="flex flex-col items-end gap-2 flex-shrink-0 ml-auto">
-          <div class="flex items-center bg-yellow-400 text-gray-900 font-bold px-3 py-2 rounded-lg">
-            9.2
-            <svg class="w-5 h-5 ml-1" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-            </svg>
-          </div>
-          <button class="text-gray-400 hover:text-yellow-400 transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5-7 3.5V5z"></path>
-            </svg>
-          </button>
-        </div>
+    </div>
       </div>
-
-      <!-- Movie Row 3 -->
-      <div class="bg-stone-900 rounded-lg p-4 flex items-center gap-4 hover:bg-stone-800 transition-colors border border-stone-800 hover:border-yellow-400">
-        <div class="rank-badge bg-yellow-400 text-gray-900 rounded-lg flex-shrink-0">3</div>
-        <div class="w-20 h-28 bg-gradient-to-br from-stone-800 to-stone-700 rounded flex-shrink-0 flex items-center justify-center text-3xl">⚔️</div>
-        <div class="flex-1">
-          <h3 class="text-white font-bold text-xl mb-1">The Dark Knight</h3>
-          <p class="text-gray-400 text-sm mb-2">2008 • Action, Crime, Drama</p>
-          <p class="text-gray-300 text-sm">When the menace known as the Joker wreaks havoc on Gotham, Batman must accept one of the greatest tests of his ability to fight injustice.</p>
-        </div>
-        <div class="flex flex-col items-end gap-2 flex-shrink-0 ml-auto">
-          <div class="flex items-center bg-yellow-400 text-gray-900 font-bold px-3 py-2 rounded-lg">
-            9.0
-            <svg class="w-5 h-5 ml-1" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-            </svg>
-          </div>
-          <button class="text-gray-400 hover:text-yellow-400 transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5-7 3.5V5z"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Movie Row 4 -->
-      <div class="bg-stone-900 rounded-lg p-4 flex items-center gap-4 hover:bg-stone-800 transition-colors border border-stone-800 hover:border-yellow-400">
-        <div class="rank-badge bg-yellow-400 text-gray-900 rounded-lg flex-shrink-0">4</div>
-        <div class="w-20 h-28 bg-gradient-to-br from-stone-800 to-stone-700 rounded flex-shrink-0 flex items-center justify-center text-3xl">🎭</div>
-        <div class="flex-1">
-          <h3 class="text-white font-bold text-xl mb-1">The Godfather Part II</h3>
-          <p class="text-gray-400 text-sm mb-2">1974 • Crime, Drama</p>
-          <p class="text-gray-300 text-sm">The early life and career of Vito Corleone in 1920s New York City is portrayed, while his son expands the family crime syndicate.</p>
-        </div>
-        <div class="flex flex-col items-end gap-2 flex-shrink-0 ml-auto">
-          <div class="flex items-center bg-yellow-400 text-gray-900 font-bold px-3 py-2 rounded-lg">
-            9.0
-            <svg class="w-5 h-5 ml-1" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-            </svg>
-          </div>
-          <button class="text-gray-400 hover:text-yellow-400 transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5-7 3.5V5z"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Movie Row 5 -->
-      <div class="bg-stone-900 rounded-lg p-4 flex items-center gap-4 hover:bg-stone-800 transition-colors border border-stone-800 hover:border-yellow-400">
-        <div class="rank-badge bg-yellow-400 text-gray-900 rounded-lg flex-shrink-0">5</div>
-        <div class="w-20 h-28 bg-gradient-to-br from-stone-800 to-stone-700 rounded flex-shrink-0 flex items-center justify-center text-3xl">⚖️</div>
-        <div class="flex-1">
-          <h3 class="text-white font-bold text-xl mb-1">12 Angry Men</h3>
-          <p class="text-gray-400 text-sm mb-2">1957 • Drama</p>
-          <p class="text-gray-300 text-sm">A jury holdout attempts to prevent a miscarriage of justice by forcing his colleagues to reconsider the evidence.</p>
-        </div> 
-        <div class="flex flex-col items-end gap-2 flex-shrink-0 ml-auto">
-          <div class="flex items-center bg-yellow-400 text-gray-900 font-bold px-3 py-2 rounded-lg">
-            9.0
-            <svg class="w-5 h-5 ml-1" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-            </svg>
-          </div>
-          <button class="text-gray-400 hover:text-yellow-400 transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5-7 3.5V5z"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Continue with more movies... -->
-      <div class="text-center py-8">
-        <p class="text-gray-400 text-lg mb-4">More movies coming soon...</p>
-        <p class="text-gray-500 text-sm">We're adding the complete top 100 list. Check back soon!</p>
-      </div>
-
     </div>
     
   </main>
@@ -409,7 +292,7 @@
           <ul class="space-y-2 text-sm">
             <li><a href="#" class="text-gray-400 hover:text-yellow-400 transition-colors">Movies</a></li>
             <li><a href="#" class="text-gray-400 hover:text-yellow-400 transition-colors">TV Shows</a></li>
-            <li><a href="top100.html" class="text-gray-400 hover:text-yellow-400 transition-colors">Top 100</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-yellow-400 transition-colors">Top Rated</a></li>
             <li><a href="#" class="text-gray-400 hover:text-yellow-400 transition-colors">New Releases</a></li>
           </ul>
         </div>
