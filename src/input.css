@@ -1,0 +1,11 @@
+/* Import Tailwind CSS */
+@import "tailwindcss";
+
+/* Custom dropdown arrow for search */
+.dropdown-arrow::after {
+  content: '▼';
+  margin-left: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1;
+  color: #717171;
+}
