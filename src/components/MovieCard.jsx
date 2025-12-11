@@ -6,12 +6,12 @@ export default function MovieCard({ movie }) {
   const rating = movie.vote_average?.toFixed(1) || 'N/A';
 
   return (
-    <div className="bg-stone-800 rounded-lg overflow-hidden shadow-lg hover:scale-105 transition-transform duration-200">
+    <div className="bg-stone-800 rounded-lg overflow-hidden shadow-lg hover:scale-105 hover:shadow-2xl hover:shadow-yellow-400/20 transition-all duration-300 group">
       <Link to={`/movie/${movie.id}`}>
         <img
           src={imageUrl}
           alt={movie.title}
-          className="w-full h-96 object-cover"
+          className="w-full h-96 object-cover group-hover:brightness-110 transition-all duration-300"
           onError={(e) => {
             e.target.src = 'https://via.placeholder.com/500x750?text=No+Image';
           }}
@@ -25,7 +25,7 @@ export default function MovieCard({ movie }) {
             </svg>
             <span className="font-bold">{rating}</span>
           </div>
-          <button className="text-gray-400 hover:text-yellow-400">
+          <button className="text-gray-400 hover:text-yellow-400 transition-all duration-200 hover:scale-110">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5-7 3.5V5z" />
             </svg>
