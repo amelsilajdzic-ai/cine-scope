@@ -22,3 +22,8 @@ npm-debug.log*
 # Environment variables
 .env
 .env.local
+
+# Dependency directories
+node_modules/
+jspm_packages/
+dist/
