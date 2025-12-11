@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
 import { tmdbService } from '../services/tmdb';
 import { useLanguage } from '../context/LanguageContext';
@@ -149,7 +150,7 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {upcomingContent.map((item) => (
               <div key={`${item.mediaType}-${item.id}`} className="bg-stone-800 rounded-lg overflow-hidden shadow-lg hover:scale-105 hover:shadow-2xl hover:shadow-yellow-400/20 transition-all duration-300 group">
-                <a href={item.mediaType === 'movie' ? `/cine-scope/movie/${item.id}` : `/cine-scope/tv/${item.id}`}>
+                <Link to={item.mediaType === 'movie' ? `/movie/${item.id}` : `/tv/${item.id}`}>
                   <div className="relative">
                     <img
                       src={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
@@ -171,7 +172,7 @@ export default function Home() {
                       {item.displayDate ? new Date(item.displayDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'TBA'}
                     </p>
                   </div>
-                </a>
+                </Link>
               </div>
             ))}
           </div>
