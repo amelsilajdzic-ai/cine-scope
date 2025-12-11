@@ -78,9 +78,6 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-stone-800 mt-8 pt-8 text-center text-sm">
           <p>&copy; {new Date().getFullYear()} Cine Scope. All rights reserved.</p>
-          <p className="mt-2">
-            Powered by <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer" className="text-yellow-400 hover:underline">TMDB API</a>
-          </p>
         </div>
       </div>
     </footer>
