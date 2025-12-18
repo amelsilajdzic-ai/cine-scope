@@ -1,18 +1,46 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import { languages } from '../i18n/translations';
+import { supabase } from '../services/supabase';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
   const [searchCategory, setSearchCategory] = useState('all');
+  const [avatarUrl, setAvatarUrl] = useState('');
   const { language, setLanguage, t } = useLanguage();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const searchDropdownRef = useRef(null);
   const langDropdownRef = useRef(null);
+  const userDropdownRef = useRef(null);
+
+  // Fetch user avatar
+  useEffect(() => {
+    if (user) {
+      fetchAvatar();
+    }
+  }, [user]);
+
+  const fetchAvatar = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('avatar_url')
+        .eq('id', user.id)
+        .single();
+
+      if (error) throw error;
+      setAvatarUrl(data?.avatar_url || '');
+    } catch (error) {
+      console.error('Error fetching avatar:', error);
+    }
+  };
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -22,6 +50,9 @@ export default function Header() {
       }
       if (langDropdownRef.current && !langDropdownRef.current.contains(event.target)) {
         setIsLangMenuOpen(false);
+      }
+      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false);
       }
     };
 
@@ -157,8 +188,8 @@ export default function Header() {
             {t('watchlist')}
           </Link>
 
-          {/* Right Side Controls - Language Selector */}
-          <div className="flex items-center ml-8 relative" ref={langDropdownRef}>
+          {/* Language Selector */}
+          <div className="flex items-center ml-4 relative" ref={langDropdownRef}>
             <button 
               onClick={(e) => {
                 e.stopPropagation();
@@ -193,6 +224,89 @@ export default function Header() {
               </div>
             )}
           </div>
+
+          {/* User Menu */}
+          {user ? (
+            <div className="flex items-center relative" ref={userDropdownRef}>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsUserMenuOpen(!isUserMenuOpen);
+                }}
+                className="flex items-center text-white hover:text-yellow-400 focus:outline-none text-sm h-full px-4 border-l border-stone-700"
+              >
+                <div className="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center text-stone-900 font-bold mr-2 overflow-hidden">
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    user.email?.charAt(0).toUpperCase()
+                  )}
+                </div>
+                <svg className="w-5 h-5 ml-0.5 fill-current" viewBox="0 0 20 20">
+                  <path d="M10 12l-6-6h12z" />
+                </svg>
+              </button>
+              
+              {isUserMenuOpen && (
+                <div className="absolute top-full right-0 mt-2 bg-stone-800/95 backdrop-blur-lg rounded-lg shadow-xl py-2 min-w-[200px] z-[100] border border-stone-700 animate-slideDown">
+                  <div className="px-4 py-2 border-b border-stone-700">
+                    <p className="text-white font-semibold text-sm truncate">{user.email}</p>
+                  </div>
+                  <Link
+                    to="/profile"
+                    onClick={() => setIsUserMenuOpen(false)}
+                    className="w-full text-left px-4 py-2 hover:bg-stone-700 flex items-center gap-2 text-white"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                    <span>My Profile</span>
+                  </Link>
+                  <Link
+                    to="/watchlist"
+                    onClick={() => setIsUserMenuOpen(false)}
+                    className="w-full text-left px-4 py-2 hover:bg-stone-700 flex items-center gap-2 text-white"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5-7 3.5V5z"></path>
+                    </svg>
+                    <span>My Watchlist</span>
+                  </Link>
+                  <button
+                    onClick={() => {
+                      signOut();
+                      setIsUserMenuOpen(false);
+                      navigate('/');
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-stone-700 flex items-center gap-2 text-red-400"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                    </svg>
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center border-l border-stone-700">
+              <Link 
+                to="/login" 
+                className="flex items-center text-white hover:text-yellow-400 text-sm font-semibold px-4 h-full transition-colors"
+              >
+                <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                </svg>
+                Sign In
+              </Link>
+              <Link 
+                to="/signup" 
+                className="flex items-center bg-yellow-400 hover:bg-yellow-500 text-stone-900 text-sm font-bold px-4 py-2 rounded ml-2 transition-colors"
+              >
+                Sign Up
+              </Link>
+            </div>
+          )}
         </div>
       </header>
 

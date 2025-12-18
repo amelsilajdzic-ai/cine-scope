@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { tmdbService } from '../services/tmdb';
+import { reviewService } from '../services/supabase';
+import { useAuth } from '../context/AuthContext';
 import Footer from '../components/Footer';
 import TVShowCard from '../components/TVShowCard';
 
 export default function TVShowDetail() {
   const { id } = useParams();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [show, setShow] = useState(null);
   const [cast, setCast] = useState([]);
   const [similar, setSimilar] = useState([]);
@@ -13,10 +17,9 @@ export default function TVShowDetail() {
   const [showTrailer, setShowTrailer] = useState(false);
   const [loading, setLoading] = useState(true);
   const [reviews, setReviews] = useState([]);
-  const [localReviews, setLocalReviews] = useState([]);
+  const [userReviews, setUserReviews] = useState([]);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [newReview, setNewReview] = useState({
-    author: '',
     rating: 5,
     content: ''
   });
@@ -49,38 +52,53 @@ export default function TVShowDetail() {
     };
 
     fetchShowData();
-    
-    // Load local reviews from localStorage
-    const savedReviews = localStorage.getItem(`tvshow_reviews_${id}`);
-    if (savedReviews) {
-      setLocalReviews(JSON.parse(savedReviews));
-    }
+    fetchUserReviews();
   }, [id]);
 
-  const handleSubmitReview = (e) => {
+  const fetchUserReviews = async () => {
+    try {
+      const allReviews = await reviewService.getMovieReviews(parseInt(id));
+      setUserReviews(allReviews);
+    } catch (error) {
+      console.error('Error fetching user reviews:', error);
+    }
+  };
+
+  const handleSubmitReview = async (e) => {
     e.preventDefault();
     
-    if (!newReview.author.trim() || !newReview.content.trim()) {
-      alert('Please fill in all fields');
+    if (!user) {
+      navigate('/login');
       return;
     }
 
-    const review = {
-      id: Date.now().toString(),
-      author: newReview.author,
-      author_details: { rating: newReview.rating },
-      content: newReview.content,
-      created_at: new Date().toISOString(),
-      isLocal: true
-    };
+    if (!newReview.content.trim()) {
+      alert('Please write a review');
+      return;
+    }
 
-    const updatedReviews = [review, ...localReviews];
-    setLocalReviews(updatedReviews);
-    localStorage.setItem(`tvshow_reviews_${id}`, JSON.stringify(updatedReviews));
+    try {
+      await reviewService.addReview(
+        user.id,
+        parseInt(id),
+        newReview.rating,
+        newReview.content,
+        {
+          title: show.name,
+          poster_path: show.poster_path
+        }
+      );
 
-    // Reset form
-    setNewReview({ author: '', rating: 5, content: '' });
-    setShowReviewForm(false);
+      // Refresh reviews
+      await fetchUserReviews();
+
+      // Reset form
+      setNewReview({ rating: 5, content: '' });
+      setShowReviewForm(false);
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      alert('Failed to submit review');
+    }
   };
 
   if (loading) {
@@ -195,7 +213,7 @@ export default function TVShowDetail() {
         {/* Reviews Section */}
         <section className="mt-16">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-3xl font-bold text-white">Reviews ({localReviews.length + reviews.length})</h2>
+            <h2 className="text-3xl font-bold text-white">Reviews ({userReviews.length + reviews.length})</h2>
             <button
               onClick={() => setShowReviewForm(!showReviewForm)}
               className="bg-yellow-400 hover:bg-yellow-500 text-stone-900 font-bold py-2 px-6 rounded-lg transition"
@@ -208,18 +226,6 @@ export default function TVShowDetail() {
           {showReviewForm && (
             <form onSubmit={handleSubmitReview} className="bg-stone-800 p-6 rounded-lg mb-6">
               <div className="mb-4">
-                <label className="block text-white font-bold mb-2">Your Name</label>
-                <input
-                  type="text"
-                  value={newReview.author}
-                  onChange={(e) => setNewReview({ ...newReview, author: e.target.value })}
-                  className="w-full p-3 rounded bg-stone-700 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                  placeholder="Enter your name"
-                  required
-                />
-              </div>
-
-              <div className="mb-4">
                 <label className="block text-white font-bold mb-2">Rating</label>
                 <div className="flex items-center gap-4">
                   <input
@@ -230,7 +236,7 @@ export default function TVShowDetail() {
                     onChange={(e) => setNewReview({ ...newReview, rating: parseInt(e.target.value) })}
                     className="flex-1"
                   />
-                  <span className="text-yellow-400 font-bold text-2xl w-12">
+                  <span className="text-yellow-400 font-bold text-2xl w-16">
                     {newReview.rating}/10
                   </span>
                 </div>
@@ -257,37 +263,46 @@ export default function TVShowDetail() {
           )}
 
           {/* Reviews List */}
-          {(localReviews.length > 0 || reviews.length > 0) ? (
+          {(userReviews.length > 0 || reviews.length > 0) ? (
             <div className="space-y-6">
-              {[...localReviews, ...reviews].map((review) => (
-                <div key={review.id} className="bg-stone-800 p-6 rounded-lg">
+              {[...userReviews, ...reviews].map((review) => {
+                // For user reviews from Supabase (has user_id field)
+                const isUserReview = review.user_id !== undefined;
+                const displayName = isUserReview 
+                  ? (review.username || 'User')
+                  : review.author;
+                const reviewRating = isUserReview ? review.rating : review.author_details?.rating;
+                
+                return (
+                  <div key={review.id} className="bg-stone-800 p-6 rounded-lg">
                   <div className="flex items-center mb-3">
                     <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center text-stone-900 font-bold text-xl">
-                      {review.author[0].toUpperCase()}
+                      {displayName[0]?.toUpperCase()}
                     </div>
                     <div className="ml-4">
-                      <p className="text-white font-bold">{review.author}</p>
+                      <p className="text-white font-bold">{displayName}</p>
                       <p className="text-gray-400 text-sm">
                         {new Date(review.created_at).toLocaleDateString()}
                       </p>
                     </div>
-                    {review.author_details?.rating && (
-                      <div className="ml-auto flex items-center text-yellow-400">
-                        <svg className="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                        </svg>
-                        <span>{review.author_details.rating}/10</span>
-                      </div>
-                    )}
+                      {reviewRating && (
+                        <div className="ml-auto flex items-center text-yellow-400">
+                          <svg className="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                          </svg>
+                          <span>{reviewRating}/10</span>
+                        </div>
+                      )}
                   </div>
-                  <p className="text-gray-300 line-clamp-4">{review.content}</p>
-                  {review.isLocal && (
+                  <p className="text-gray-300 line-clamp-4">{review.content || review.comment}</p>
+                  {isUserReview && review.user_id === user?.id && (
                     <span className="inline-block mt-2 bg-yellow-400 text-stone-900 text-xs font-bold px-2 py-1 rounded">
                       Your Review
                     </span>
                   )}
                 </div>
-              ))}
+              );
+              })}
             </div>
           ) : (
             <p className="text-gray-400 text-center py-8">No reviews yet. Be the first to write one!</p>
