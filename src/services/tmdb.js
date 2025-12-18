@@ -35,6 +35,14 @@ export const tmdbService = {
     return response.json();
   },
 
+  // Get now playing movies
+  getNowPlayingMovies: async (page = 1) => {
+    const response = await fetch(
+      `${BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=en-US&page=${page}`
+    );
+    return response.json();
+  },
+
   // Search movies
   searchMovies: async (query) => {
     const response = await fetch(
@@ -71,6 +79,14 @@ export const tmdbService = {
   getSimilarMovies: async (movieId) => {
     const response = await fetch(
       `${BASE_URL}/movie/${movieId}/similar?api_key=${API_KEY}&language=en-US&page=1`
+    );
+    return response.json();
+  },
+
+  // Get movie recommendations
+  getMovieRecommendations: async (movieId) => {
+    const response = await fetch(
+      `${BASE_URL}/movie/${movieId}/recommendations?api_key=${API_KEY}&language=en-US&page=1`
     );
     return response.json();
   },
@@ -224,6 +240,43 @@ export const tmdbService = {
   getTVGenres: async () => {
     const response = await fetch(
       `${BASE_URL}/genre/tv/list?api_key=${API_KEY}&language=en-US`
+    );
+    return response.json();
+  },
+
+  // Get TV show recommendations
+  getTVShowRecommendations: async (tvId) => {
+    const response = await fetch(
+      `${BASE_URL}/tv/${tvId}/recommendations?api_key=${API_KEY}&language=en-US&page=1`
+    );
+    return response.json();
+  },
+
+  // Discover movies by multiple criteria (for personalized recommendations)
+  discoverMovies: async (params = {}) => {
+    const queryParams = new URLSearchParams({
+      api_key: API_KEY,
+      language: 'en-US',
+      sort_by: 'popularity.desc',
+      page: '1',
+      ...params
+    });
+    const response = await fetch(`${BASE_URL}/discover/movie?${queryParams}`);
+    return response.json();
+  },
+
+  // Get watch providers for a movie (streaming services)
+  getMovieWatchProviders: async (movieId) => {
+    const response = await fetch(
+      `${BASE_URL}/movie/${movieId}/watch/providers?api_key=${API_KEY}`
+    );
+    return response.json();
+  },
+
+  // Get watch providers for a TV show
+  getTVShowWatchProviders: async (tvId) => {
+    const response = await fetch(
+      `${BASE_URL}/tv/${tvId}/watch/providers?api_key=${API_KEY}`
     );
     return response.json();
   },

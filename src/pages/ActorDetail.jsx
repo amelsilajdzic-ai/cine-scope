@@ -18,9 +18,9 @@ export default function ActorDetail() {
         ]);
         
         setActor(actorData);
-        // Sort by popularity and get top movies
+        // Sort by popularity and get top movies with posters
         const sortedCredits = creditsData.cast?.sort((a, b) => b.popularity - a.popularity) || [];
-        setCredits(sortedCredits.slice(0, 20));
+        setCredits(sortedCredits.filter(movie => movie.poster_path).slice(0, 20));
       } catch (error) {
         console.error('Error fetching actor details:', error);
       } finally {

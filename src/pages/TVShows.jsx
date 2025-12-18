@@ -7,27 +7,71 @@ export default function TVShows() {
   const [trendingShows, setTrendingShows] = useState([]);
   const [popularShows, setPopularShows] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
-    const fetchTVShows = async () => {
-      try {
-        const [trending, popular1, popular2] = await Promise.all([
-          tmdbService.getTrendingTVShows(),
-          tmdbService.getPopularTVShows(1),
-          tmdbService.getPopularTVShows(2),
-        ]);
-        setTrendingShows(trending.results?.slice(0, 6) || []);
-        const allPopular = [...(popular1.results || []), ...(popular2.results || [])];
-        setPopularShows(allPopular);
-      } catch (error) {
-        console.error('Error fetching TV shows:', error);
-      } finally {
-        setLoading(false);
+    fetchTVShows();
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (loadingMore || !hasMore) return;
+
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = document.documentElement.clientHeight;
+
+      // Trigger when user is 200px from bottom
+      if (scrollTop + clientHeight >= scrollHeight - 200) {
+        loadMoreShows();
       }
     };
 
-    fetchTVShows();
-  }, []);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loadingMore, hasMore, page]);
+
+  const fetchTVShows = async () => {
+    try {
+      const [trending, popular] = await Promise.all([
+        tmdbService.getTrendingTVShows(),
+        tmdbService.getPopularTVShows(1),
+      ]);
+      setTrendingShows((trending.results || []).filter(show => show.poster_path).slice(0, 6));
+      setPopularShows((popular.results || []).filter(show => show.poster_path));
+      setPage(1);
+      setHasMore(popular.page < popular.total_pages);
+    } catch (error) {
+      console.error('Error fetching TV shows:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadMoreShows = async () => {
+    if (loadingMore || !hasMore) return;
+
+    try {
+      setLoadingMore(true);
+      const nextPage = page + 1;
+      const data = await tmdbService.getPopularTVShows(nextPage);
+      
+      if (data.results && data.results.length > 0) {
+        const filteredResults = data.results.filter(show => show.poster_path);
+        setPopularShows(prev => [...prev, ...filteredResults]);
+        setPage(nextPage);
+        setHasMore(data.page < data.total_pages);
+      } else {
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.error('Error loading more TV shows:', error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -79,6 +123,21 @@ export default function TVShows() {
             <TVShowCard key={show.id} show={show} />
           ))}
         </div>
+
+        {/* Loading More Indicator */}
+        {loadingMore && (
+          <div className="text-center py-8">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400"></div>
+            <p className="text-gray-400 text-lg mt-4">Loading more shows...</p>
+          </div>
+        )}
+
+        {/* End of Results */}
+        {!hasMore && popularShows.length > 0 && (
+          <div className="text-center py-8">
+            <div className="text-gray-400 text-lg">You've seen all popular TV shows! 📺</div>
+          </div>
+        )}
       </section>
 
       <Footer />

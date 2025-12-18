@@ -58,7 +58,7 @@ export default function TVGenre() {
     try {
       setLoading(true);
       const data = await tmdbService.getTVShowsByGenre(genreId, 1);
-      setShows(data.results || []);
+      setShows((data.results || []).filter(show => show.poster_path));
       setPage(1);
       setHasMore(data.page < data.total_pages);
     } catch (error) {
@@ -77,7 +77,8 @@ export default function TVGenre() {
       const data = await tmdbService.getTVShowsByGenre(genreId, nextPage);
       
       if (data.results && data.results.length > 0) {
-        setShows(prev => [...prev, ...data.results]);
+        const filteredResults = data.results.filter(show => show.poster_path);
+        setShows(prev => [...prev, ...filteredResults]);
         setPage(nextPage);
         setHasMore(data.page < data.total_pages);
       } else {

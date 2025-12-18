@@ -41,7 +41,7 @@ export default function Actors() {
   const fetchPopularActors = async () => {
     try {
       const data = await tmdbService.getPopularActors(1);
-      setActors(data.results || []);
+      setActors((data.results || []).filter(actor => actor.profile_path));
       setPage(1);
       setHasMore(true);
       setIsSearchMode(false);
@@ -61,7 +61,8 @@ export default function Actors() {
       const data = await tmdbService.getPopularActors(nextPage);
       
       if (data.results && data.results.length > 0) {
-        setActors(prev => [...prev, ...data.results]);
+        const filteredResults = data.results.filter(actor => actor.profile_path);
+        setActors(prev => [...prev, ...filteredResults]);
         setPage(nextPage);
         
         if (nextPage >= data.total_pages) {

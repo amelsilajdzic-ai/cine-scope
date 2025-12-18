@@ -33,12 +33,12 @@ export default function Search() {
           tmdbService.searchMovies(query),
           tmdbService.searchTVShows(query)
         ]);
-        setMovies(moviesData.results || []);
-        setTVShows(tvData.results || []);
+        setMovies((moviesData.results || []).filter(movie => movie.poster_path));
+        setTVShows((tvData.results || []).filter(show => show.poster_path));
         setActors([]);
       } else if (category === 'celebs') {
         const actorsData = await tmdbService.searchActors(query);
-        setActors(actorsData.results || []);
+        setActors((actorsData.results || []).filter(actor => actor.profile_path));
         setMovies([]);
         setTVShows([]);
       } else if (category === 'keywords') {
@@ -46,8 +46,8 @@ export default function Search() {
           tmdbService.searchMovies(query),
           tmdbService.searchTVShows(query)
         ]);
-        setMovies(moviesData.results || []);
-        setTVShows(tvData.results || []);
+        setMovies((moviesData.results || []).filter(movie => movie.poster_path));
+        setTVShows((tvData.results || []).filter(show => show.poster_path));
         setActors([]);
       } else {
         // Search all
@@ -56,9 +56,9 @@ export default function Search() {
           tmdbService.searchTVShows(query),
           tmdbService.searchActors(query)
         ]);
-        setMovies(moviesData.results || []);
-        setTVShows(tvData.results || []);
-        setActors(actorsData.results || []);
+        setMovies((moviesData.results || []).filter(movie => movie.poster_path));
+        setTVShows((tvData.results || []).filter(show => show.poster_path));
+        setActors((actorsData.results || []).filter(actor => actor.profile_path));
       }
     } catch (error) {
       console.error('Error searching:', error);

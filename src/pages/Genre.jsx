@@ -63,7 +63,7 @@ export default function Genre() {
     try {
       setLoading(true);
       const data = await tmdbService.getMoviesByGenre(genreId, 1);
-      setMovies(data.results || []);
+      setMovies((data.results || []).filter(movie => movie.poster_path));
       setPage(1);
       setHasMore(data.page < data.total_pages);
     } catch (error) {
@@ -82,7 +82,8 @@ export default function Genre() {
       const data = await tmdbService.getMoviesByGenre(genreId, nextPage);
       
       if (data.results && data.results.length > 0) {
-        setMovies(prev => [...prev, ...data.results]);
+        const filteredResults = data.results.filter(movie => movie.poster_path);
+        setMovies(prev => [...prev, ...filteredResults]);
         setPage(nextPage);
         setHasMore(data.page < data.total_pages);
       } else {
