@@ -1,7 +1,9 @@
 # Dependencies
 node_modules/
+jspm_packages/
 
 # Build output
+dist/
 styles.css
 
 # OS files
@@ -22,9 +24,11 @@ npm-debug.log*
 # Environment variables
 .env
 .env.local
-
-# Dependency directories
-node_modules/
-jspm_packages/
-.env
+.env.*
+!.env.example
 backend/.env
+backend-next/.env
+
+# Database migrations (contains sensitive schema info)
+supabase_migrations.sql
+*.sql
