@@ -4,6 +4,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { languages } from '../i18n/translations';
 import { supabase } from '../services/supabase';
+import UserSearch from './UserSearch';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -11,6 +12,7 @@ export default function Header() {
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
+  const [isUserSearchOpen, setIsUserSearchOpen] = useState(false);
   const [searchCategory, setSearchCategory] = useState('all');
   const [avatarUrl, setAvatarUrl] = useState('');
   const { language, setLanguage, t } = useLanguage();
@@ -188,6 +190,18 @@ export default function Header() {
             {t('watchlist')}
           </Link>
 
+          {/* Find Users Button */}
+          <button 
+            onClick={() => setIsUserSearchOpen(!isUserSearchOpen)}
+            className="items-center text-white hover:text-yellow-400 text-sm font-semibold pl-4 h-full hidden lg:flex"
+            title="Find Users"
+          >
+            <svg className="w-6 h-6 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+            Users
+          </button>
+
           {/* Language Selector */}
           <div className="flex items-center ml-4 relative" ref={langDropdownRef}>
             <button 
@@ -310,6 +324,15 @@ export default function Header() {
         </div>
       </header>
 
+      {/* User Search Dropdown */}
+      {isUserSearchOpen && (
+        <div className="fixed top-14 left-0 right-0 bg-stone-900 border-b border-stone-700 p-4 z-50 animate-slideDown">
+          <div className="container mx-auto max-w-xl">
+            <UserSearch onClose={() => setIsUserSearchOpen(false)} />
+          </div>
+        </div>
+      )}
+
       {/* Menu Dropdown */}
       {isMenuOpen && (
         <div className="fixed top-14 left-0 right-0 bottom-0 bg-black/60 backdrop-blur-sm z-50 animate-fadeIn" onClick={() => setIsMenuOpen(false)}>
@@ -358,6 +381,29 @@ export default function Header() {
                 <div className="flex flex-col gap-2">
                   <Link to="/actors" className="text-gray-300 hover:text-yellow-400" onClick={() => setIsMenuOpen(false)}>Popular actors</Link>
                   <Link to="/actors" className="text-gray-300 hover:text-yellow-400" onClick={() => setIsMenuOpen(false)}>Search actors</Link>
+                </div>
+              </div>
+
+              {/* Community Section */}
+              <div>
+                <h3 className="flex items-center gap-2 text-xl font-semibold mb-4 text-yellow-400">
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                  </svg>
+                  Community
+                </h3>
+                <div className="flex flex-col gap-2">
+                  <button 
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      setIsUserSearchOpen(true);
+                    }} 
+                    className="text-gray-300 hover:text-yellow-400 text-left"
+                  >
+                    Find users
+                  </button>
+                  <Link to="/profile" className="text-gray-300 hover:text-yellow-400" onClick={() => setIsMenuOpen(false)}>Your profile</Link>
+                  <Link to="/watchlist" className="text-gray-300 hover:text-yellow-400" onClick={() => setIsMenuOpen(false)}>Your watchlist</Link>
                 </div>
               </div>
             </div>

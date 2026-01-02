@@ -107,10 +107,81 @@ export const tmdbService = {
     return response.json();
   },
 
-  // Search actors
-  searchActors: async (query) => {
+  // Get trending actors (daily)
+  getTrendingActors: async (page = 1) => {
     const response = await fetch(
-      `${BASE_URL}/search/person?api_key=${API_KEY}&language=en-US&query=${query}&page=1`
+      `${BASE_URL}/trending/person/day?api_key=${API_KEY}&page=${page}`
+    );
+    return response.json();
+  },
+
+  // Get trending actors (weekly)
+  getTrendingActorsWeekly: async (page = 1) => {
+    const response = await fetch(
+      `${BASE_URL}/trending/person/week?api_key=${API_KEY}&page=${page}`
+    );
+    return response.json();
+  },
+
+  // Get actors from latest movies
+  getActorsFromLatestMovies: async (page = 1) => {
+    try {
+      // First get latest popular movies
+      const moviesResponse = await fetch(
+        `${BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=en-US&page=${page}`
+      );
+      const moviesData = await moviesResponse.json();
+      
+      // Then get cast from first few movies
+      const actorSet = new Set();
+      const actors = [];
+      
+      for (const movie of moviesData.results.slice(0, 5)) {
+        try {
+          const castResponse = await fetch(
+            `${BASE_URL}/movie/${movie.id}/credits?api_key=${API_KEY}`
+          );
+          const castData = await castResponse.json();
+          
+          castData.cast.slice(0, 10).forEach(actor => {
+            if (!actorSet.has(actor.id) && actor.profile_path) {
+              actorSet.add(actor.id);
+              actors.push({
+                ...actor,
+                known_for_department: actor.known_for_department || 'Acting',
+                popularity: actor.popularity || movie.popularity || 0
+              });
+            }
+          });
+        } catch (err) {
+          console.log('Error fetching cast for movie:', movie.id);
+        }
+      }
+      
+      return {
+        results: actors.sort((a, b) => (b.popularity || 0) - (a.popularity || 0)),
+        page: page,
+        total_pages: 10,
+        total_results: actors.length
+      };
+    } catch (error) {
+      console.error('Error fetching actors from latest movies:', error);
+      return { results: [], page: 1, total_pages: 1, total_results: 0 };
+    }
+  },
+
+  // Search actors (enhanced)
+  searchActors: async (query, page = 1) => {
+    const response = await fetch(
+      `${BASE_URL}/search/person?api_key=${API_KEY}&language=en-US&query=${encodeURIComponent(query)}&page=${page}&include_adult=false`
+    );
+    return response.json();
+  },
+
+  // Get actors by gender (1=female, 2=male, 0=not specified)
+  getActorsByGender: async (gender = 0, page = 1) => {
+    const response = await fetch(
+      `${BASE_URL}/discover/person?api_key=${API_KEY}&language=en-US&sort_by=popularity.desc&with_gender=${gender}&page=${page}`
     );
     return response.json();
   },
@@ -127,6 +198,30 @@ export const tmdbService = {
   getActorMovieCredits: async (actorId) => {
     const response = await fetch(
       `${BASE_URL}/person/${actorId}/movie_credits?api_key=${API_KEY}&language=en-US`
+    );
+    return response.json();
+  },
+
+  // Get actor TV credits
+  getActorTVCredits: async (actorId) => {
+    const response = await fetch(
+      `${BASE_URL}/person/${actorId}/tv_credits?api_key=${API_KEY}&language=en-US`
+    );
+    return response.json();
+  },
+
+  // Get actor combined credits (movies + TV)
+  getActorCombinedCredits: async (actorId) => {
+    const response = await fetch(
+      `${BASE_URL}/person/${actorId}/combined_credits?api_key=${API_KEY}&language=en-US`
+    );
+    return response.json();
+  },
+
+  // Get actor images
+  getActorImages: async (actorId) => {
+    const response = await fetch(
+      `${BASE_URL}/person/${actorId}/images?api_key=${API_KEY}`
     );
     return response.json();
   },
@@ -258,10 +353,26 @@ export const tmdbService = {
       api_key: API_KEY,
       language: 'en-US',
       sort_by: 'popularity.desc',
-      page: '1',
+      page: params.page || '1',
+      include_adult: 'false',
+      include_video: 'false',
       ...params
     });
     const response = await fetch(`${BASE_URL}/discover/movie?${queryParams}`);
+    return response.json();
+  },
+
+  // Discover TV shows by multiple criteria
+  discoverTV: async (params = {}) => {
+    const queryParams = new URLSearchParams({
+      api_key: API_KEY,
+      language: 'en-US',
+      sort_by: 'popularity.desc',
+      page: params.page || '1',
+      include_adult: 'false',
+      ...params
+    });
+    const response = await fetch(`${BASE_URL}/discover/tv?${queryParams}`);
     return response.json();
   },
 

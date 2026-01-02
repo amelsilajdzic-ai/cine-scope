@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import Footer from '../components/Footer';
 import RecommendedMovies from '../components/RecommendedMovies';
 import WatchProviders from '../components/WatchProviders';
+import ShareButton from '../components/ShareButton';
 
 export default function MovieDetail() {
   const { id } = useParams();
@@ -259,6 +260,13 @@ export default function MovieDetail() {
                 </svg>
                 {isInWatchlist ? 'In Watchlist' : 'Add to Watchlist'}
               </button>
+              
+              {/* Share Button */}
+              <ShareButton 
+                title={movie.title}
+                text={`Check out "${movie.title}" on CineScope! ⭐ ${rating}/10`}
+                mediaType="movie"
+              />
             </div>
 
             {/* Overview */}
@@ -386,11 +394,29 @@ export default function MovieDetail() {
                 return (
                   <div key={review.id} className="bg-stone-800 p-6 rounded-lg">
                     <div className="flex items-center mb-3">
-                      <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center text-stone-900 font-bold text-xl">
-                        {displayName[0]?.toUpperCase()}
-                      </div>
+                      {isUserReview && review.user_id !== user?.id ? (
+                        <Link 
+                          to={`/user/${review.user_id}`}
+                          className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center text-stone-900 font-bold text-xl hover:bg-yellow-300 transition"
+                        >
+                          {displayName[0]?.toUpperCase()}
+                        </Link>
+                      ) : (
+                        <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center text-stone-900 font-bold text-xl">
+                          {displayName[0]?.toUpperCase()}
+                        </div>
+                      )}
                       <div className="ml-4">
-                        <p className="text-white font-bold">{displayName}</p>
+                        {isUserReview && review.user_id !== user?.id ? (
+                          <Link 
+                            to={`/user/${review.user_id}`}
+                            className="text-white font-bold hover:text-yellow-400 transition"
+                          >
+                            {displayName}
+                          </Link>
+                        ) : (
+                          <p className="text-white font-bold">{displayName}</p>
+                        )}
                         <p className="text-gray-400 text-sm">
                           {new Date(review.created_at).toLocaleDateString()}
                         </p>

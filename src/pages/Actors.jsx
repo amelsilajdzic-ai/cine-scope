@@ -13,11 +13,12 @@ export default function Actors() {
   const [hasMore, setHasMore] = useState(true);
   const [searching, setSearching] = useState(false);
   const [isSearchMode, setIsSearchMode] = useState(false);
+  const [activeTab, setActiveTab] = useState('popular'); // popular, trending, latest, female, male
   const { t } = useLanguage();
 
   useEffect(() => {
-    fetchPopularActors();
-  }, []);
+    fetchActorsByTab(activeTab);
+  }, [activeTab]);
 
   useEffect(() => {
     if (isSearchMode) return; // Don't use infinite scroll in search mode
@@ -36,7 +37,50 @@ export default function Actors() {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [loadingMore, hasMore, page, isSearchMode]);
+  }, [loadingMore, hasMore, page, isSearchMode, activeTab]);
+
+  const fetchActorsByTab = async (tab = 'popular', pageNum = 1) => {
+    try {
+      setLoading(pageNum === 1);
+      let data;
+      
+      switch (tab) {
+        case 'trending':
+          data = await tmdbService.getTrendingActors(pageNum);
+          break;
+        case 'latest':
+          data = await tmdbService.getActorsFromLatestMovies(pageNum);
+          break;
+        case 'female':
+          data = await tmdbService.getActorsByGender(1, pageNum);
+          break;
+        case 'male':
+          data = await tmdbService.getActorsByGender(2, pageNum);
+          break;
+        default:
+          data = await tmdbService.getPopularActors(pageNum);
+      }
+      
+      const filteredResults = (data.results || []).filter(actor => 
+        actor.profile_path && actor.name && actor.known_for_department
+      );
+      
+      if (pageNum === 1) {
+        setActors(filteredResults);
+        setPage(1);
+      } else {
+        setActors(prev => [...prev, ...filteredResults]);
+        setPage(pageNum);
+      }
+      
+      setHasMore(pageNum < (data.total_pages || 1) && filteredResults.length > 0);
+      setIsSearchMode(false);
+    } catch (error) {
+      console.error('Error fetching actors:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchPopularActors = async () => {
     try {
@@ -58,19 +102,9 @@ export default function Actors() {
     setLoadingMore(true);
     try {
       const nextPage = page + 1;
-      const data = await tmdbService.getPopularActors(nextPage);
       
-      if (data.results && data.results.length > 0) {
-        const filteredResults = data.results.filter(actor => actor.profile_path);
-        setActors(prev => [...prev, ...filteredResults]);
-        setPage(nextPage);
-        
-        if (nextPage >= data.total_pages) {
-          setHasMore(false);
-        }
-      } else {
-        setHasMore(false);
-      }
+      // Use the same tab method for loading more
+      await fetchActorsByTab(activeTab, nextPage);
     } catch (error) {
       console.error('Error loading more actors:', error);
     } finally {
@@ -81,7 +115,7 @@ export default function Actors() {
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) {
-      fetchPopularActors();
+      setActiveTab('popular');
       return;
     }
 
@@ -90,12 +124,18 @@ export default function Actors() {
     setHasMore(false); // Disable infinite scroll for search results
     try {
       const data = await tmdbService.searchActors(searchQuery);
-      setActors(data.results || []);
+      setActors((data.results || []).filter(actor => actor.profile_path));
     } catch (error) {
       console.error('Error searching actors:', error);
     } finally {
       setSearching(false);
     }
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setSearchQuery('');
+    setIsSearchMode(false);
   };
 
   if (loading) {
@@ -109,17 +149,26 @@ export default function Actors() {
   return (
     <div className="bg-stone-950 min-h-screen">
       {/* Header Section */}
-      <section className="bg-linear-to-r from-stone-900 to-stone-800 py-16">
+      <section className="bg-gradient-to-r from-stone-900 to-stone-800 py-16">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-            Popular Actors
+            {isSearchMode ? 'Search Results' : 
+             activeTab === 'trending' ? 'Trending Actors' :
+             activeTab === 'latest' ? 'Latest Movie Stars' :
+             activeTab === 'female' ? 'Female Actors' :
+             activeTab === 'male' ? 'Male Actors' : 'Popular Actors'}
           </h1>
           <p className="text-xl text-gray-300 mb-8">
-            Discover talented actors and their filmography
+            {isSearchMode ? `Results for "${searchQuery}"` :
+             activeTab === 'trending' ? 'Discover what actors are trending right now' :
+             activeTab === 'latest' ? 'Stars from the latest blockbuster movies' :
+             activeTab === 'female' ? 'Talented female performers in cinema' :
+             activeTab === 'male' ? 'Accomplished male actors and performers' :
+             'Discover talented actors and their filmography'}
           </p>
 
           {/* Search Form */}
-          <form onSubmit={handleSearch} className="max-w-2xl">
+          <form onSubmit={handleSearch} className="max-w-2xl mb-8">
             <div className="flex gap-2">
               <input
                 type="text"
@@ -137,6 +186,62 @@ export default function Actors() {
               </button>
             </div>
           </form>
+
+          {/* Actor Category Tabs */}
+          {!isSearchMode && (
+            <div className="flex flex-wrap gap-2 justify-center">
+              <button
+                onClick={() => handleTabChange('popular')}
+                className={`px-6 py-3 rounded-full font-semibold transition ${
+                  activeTab === 'popular'
+                    ? 'bg-yellow-400 text-stone-900'
+                    : 'bg-stone-800 text-white hover:bg-stone-700'
+                }`}
+              >
+                🌟 Popular
+              </button>
+              <button
+                onClick={() => handleTabChange('trending')}
+                className={`px-6 py-3 rounded-full font-semibold transition ${
+                  activeTab === 'trending'
+                    ? 'bg-yellow-400 text-stone-900'
+                    : 'bg-stone-800 text-white hover:bg-stone-700'
+                }`}
+              >
+                🔥 Trending
+              </button>
+              <button
+                onClick={() => handleTabChange('latest')}
+                className={`px-6 py-3 rounded-full font-semibold transition ${
+                  activeTab === 'latest'
+                    ? 'bg-yellow-400 text-stone-900'
+                    : 'bg-stone-800 text-white hover:bg-stone-700'
+                }`}
+              >
+                🎬 Latest Movies
+              </button>
+              <button
+                onClick={() => handleTabChange('female')}
+                className={`px-6 py-3 rounded-full font-semibold transition ${
+                  activeTab === 'female'
+                    ? 'bg-yellow-400 text-stone-900'
+                    : 'bg-stone-800 text-white hover:bg-stone-700'
+                }`}
+              >
+                👩 Female Actors
+              </button>
+              <button
+                onClick={() => handleTabChange('male')}
+                className={`px-6 py-3 rounded-full font-semibold transition ${
+                  activeTab === 'male'
+                    ? 'bg-yellow-400 text-stone-900'
+                    : 'bg-stone-800 text-white hover:bg-stone-700'
+                }`}
+              >
+                👨 Male Actors
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
@@ -172,9 +277,24 @@ export default function Actors() {
                         {actor.known_for_department}
                       </p>
                     )}
+                    {/* Show popularity score */}
+                    {actor.popularity && (
+                      <div className="flex items-center mt-2">
+                        <span className="text-yellow-400 text-xs">⭐</span>
+                        <span className="text-gray-300 text-xs ml-1">
+                          {Math.round(actor.popularity)} popularity
+                        </span>
+                      </div>
+                    )}
+                    {/* Show gender indicator */}
+                    {actor.gender && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        {actor.gender === 1 ? '👩' : actor.gender === 2 ? '👨' : '👤'}
+                      </div>
+                    )}
                     {actor.known_for && actor.known_for.length > 0 && (
                       <p className="text-gray-500 text-xs mt-2 line-clamp-2">
-                        Known for: {actor.known_for.map(m => m.title || m.name).join(', ')}
+                        Known for: {actor.known_for.map(m => m.title || m.name).slice(0, 2).join(', ')}
                       </p>
                     )}
                   </div>
@@ -194,7 +314,22 @@ export default function Actors() {
         {/* End of Results */}
         {!hasMore && actors.length > 0 && !isSearchMode && (
           <div className="flex justify-center mt-8">
-            <div className="text-gray-400 text-lg">You've seen all popular actors! 👥</div>
+            <div className="text-gray-400 text-lg">
+              {activeTab === 'trending' ? "You've seen all trending actors! 🔥" :
+               activeTab === 'latest' ? "You've seen all latest movie stars! 🎬" :
+               activeTab === 'female' ? "You've seen all female actors! 👩" :
+               activeTab === 'male' ? "You've seen all male actors! 👨" :
+               "You've seen all popular actors! ⭐"}
+            </div>
+          </div>
+        )}
+        
+        {/* Show total count */}
+        {actors.length > 0 && (
+          <div className="flex justify-center mt-4">
+            <div className="text-gray-500 text-sm">
+              Showing {actors.length} actors
+            </div>
           </div>
         )}
       </section>

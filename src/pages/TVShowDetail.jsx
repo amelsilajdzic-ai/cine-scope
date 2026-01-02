@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import TVShowCard from '../components/TVShowCard';
 import RecommendedTVShows from '../components/RecommendedTVShows';
 import WatchProviders from '../components/WatchProviders';
+import ShareButton from '../components/ShareButton';
 
 export default function TVShowDetail() {
   const { id } = useParams();
@@ -160,7 +161,7 @@ export default function TVShowDetail() {
             {trailer && (
               <button
                 onClick={() => setShowTrailer(true)}
-                className="bg-yellow-400 hover:bg-yellow-500 text-stone-900 font-bold py-3 px-8 rounded-lg mb-6 flex items-center gap-2 transition"
+                className="bg-yellow-400 hover:bg-yellow-500 text-stone-900 font-bold py-3 px-8 rounded-lg flex items-center gap-2 transition"
               >
                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M8 5v14l11-7z"/>
@@ -168,6 +169,15 @@ export default function TVShowDetail() {
                 Play Trailer
               </button>
             )}
+            
+            {/* Share Button */}
+            <div className="flex gap-4 mb-6">
+              <ShareButton 
+                title={show.name}
+                text={`Check out "${show.name}" on CineScope! ⭐ ${show.vote_average.toFixed(1)}/10`}
+                mediaType="TV show"
+              />
+            </div>
 
             {/* Genres */}
             <div className="flex gap-2 mb-6 flex-wrap">
@@ -283,11 +293,29 @@ export default function TVShowDetail() {
                 return (
                   <div key={review.id} className="bg-stone-800 p-6 rounded-lg">
                   <div className="flex items-center mb-3">
-                    <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center text-stone-900 font-bold text-xl">
-                      {displayName[0]?.toUpperCase()}
-                    </div>
+                    {isUserReview && review.user_id !== user?.id ? (
+                      <Link 
+                        to={`/user/${review.user_id}`}
+                        className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center text-stone-900 font-bold text-xl hover:bg-yellow-300 transition"
+                      >
+                        {displayName[0]?.toUpperCase()}
+                      </Link>
+                    ) : (
+                      <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center text-stone-900 font-bold text-xl">
+                        {displayName[0]?.toUpperCase()}
+                      </div>
+                    )}
                     <div className="ml-4">
-                      <p className="text-white font-bold">{displayName}</p>
+                      {isUserReview && review.user_id !== user?.id ? (
+                        <Link 
+                          to={`/user/${review.user_id}`}
+                          className="text-white font-bold hover:text-yellow-400 transition"
+                        >
+                          {displayName}
+                        </Link>
+                      ) : (
+                        <p className="text-white font-bold">{displayName}</p>
+                      )}
                       <p className="text-gray-400 text-sm">
                         {new Date(review.created_at).toLocaleDateString()}
                       </p>

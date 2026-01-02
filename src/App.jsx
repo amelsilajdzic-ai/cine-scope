@@ -21,6 +21,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Watchlist from './pages/Watchlist';
 import Profile from './pages/Profile';
+import UserProfile from './pages/UserProfile';
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/watchlist" element={<Watchlist />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/user/:userId" element={<UserProfile />} />
           </Routes>
         </div>
       </Router>
