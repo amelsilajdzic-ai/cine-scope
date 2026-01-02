@@ -324,7 +324,7 @@ export const socialService = {
     try {
       const { data, error } = await supabase
         .from('followers')
-        .select('follower_id')
+        .select('follower_id, created_at')
         .eq('following_id', userId);
       
       if (error) throw error;
@@ -338,7 +338,22 @@ export const socialService = {
         .in('id', followerIds);
       
       if (profilesError) throw profilesError;
-      return profiles || [];
+      
+      // Create a map of existing profiles
+      const profileMap = new Map((profiles || []).map(p => [p.id, p]));
+      
+      // Return all followers, using profile data if available, otherwise create fallback
+      return followerIds.map(id => {
+        if (profileMap.has(id)) {
+          return profileMap.get(id);
+        }
+        // Fallback for users without a profile entry
+        return {
+          id: id,
+          username: 'CineScope User',
+          avatar_url: null
+        };
+      });
     } catch (error) {
       console.error('Error getting followers:', error);
       return [];
@@ -350,7 +365,7 @@ export const socialService = {
     try {
       const { data, error } = await supabase
         .from('followers')
-        .select('following_id')
+        .select('following_id, created_at')
         .eq('follower_id', userId);
       
       if (error) throw error;
@@ -364,7 +379,22 @@ export const socialService = {
         .in('id', followingIds);
       
       if (profilesError) throw profilesError;
-      return profiles || [];
+      
+      // Create a map of existing profiles
+      const profileMap = new Map((profiles || []).map(p => [p.id, p]));
+      
+      // Return all following users, using profile data if available, otherwise create fallback
+      return followingIds.map(id => {
+        if (profileMap.has(id)) {
+          return profileMap.get(id);
+        }
+        // Fallback for users without a profile entry
+        return {
+          id: id,
+          username: 'CineScope User',
+          avatar_url: null
+        };
+      });
     } catch (error) {
       console.error('Error getting following:', error);
       return [];
