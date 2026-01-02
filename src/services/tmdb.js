@@ -179,11 +179,42 @@ export const tmdbService = {
   },
 
   // Get actors by gender (1=female, 2=male, 0=not specified)
+  // TMDB doesn't have a direct gender filter on popular, so we fetch and filter
   getActorsByGender: async (gender = 0, page = 1) => {
-    const response = await fetch(
-      `${BASE_URL}/discover/person?api_key=${API_KEY}&language=en-US&sort_by=popularity.desc&with_gender=${gender}&page=${page}`
-    );
-    return response.json();
+    try {
+      const results = [];
+      // Calculate which API pages to fetch based on desired page
+      // We need to fetch more pages because we're filtering
+      const startApiPage = (page - 1) * 3 + 1;
+      let totalPages = 500;
+      
+      // Fetch multiple API pages to get enough filtered results
+      for (let apiPage = startApiPage; apiPage <= startApiPage + 4 && results.length < 20; apiPage++) {
+        const response = await fetch(
+          `${BASE_URL}/person/popular?api_key=${API_KEY}&language=en-US&page=${apiPage}`
+        );
+        const data = await response.json();
+        totalPages = Math.min(data.total_pages || 500, 500);
+        
+        // Filter by gender
+        const filtered = (data.results || []).filter(actor => 
+          actor.gender === gender && actor.profile_path
+        );
+        results.push(...filtered);
+        
+        if (apiPage >= totalPages) break;
+      }
+      
+      return {
+        results: results.slice(0, 20),
+        page: page,
+        total_pages: Math.ceil(totalPages / 3), // Approximate pages after filtering
+        total_results: results.length
+      };
+    } catch (error) {
+      console.error('Error fetching actors by gender:', error);
+      return { results: [], page: 1, total_pages: 1, total_results: 0 };
+    }
   },
 
   // Get actor details
