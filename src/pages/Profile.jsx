@@ -273,7 +273,7 @@ export default function Profile() {
             {/* Quick Actions */}
             <div className="mt-6 space-y-3">
               <Link 
-                to={`/user/${user.id}`}
+                to={`/user/${user.id}?preview=true`}
                 className="flex items-center justify-center gap-2 w-full bg-yellow-500 hover:bg-yellow-400 text-stone-900 font-bold py-3 px-4 rounded-xl transition"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

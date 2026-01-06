@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { socialService, supabase } from '../services/supabase';
 import Footer from '../components/Footer';
@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 export default function UserProfile() {
   const { userId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -19,16 +20,17 @@ export default function UserProfile() {
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
 
+  const isPreviewMode = searchParams.get('preview') === 'true';
   const isOwnProfile = user?.id === userId;
 
   useEffect(() => {
-    // Redirect to own profile page if viewing own profile
-    if (isOwnProfile) {
+    // Redirect to own profile page if viewing own profile (unless in preview mode)
+    if (isOwnProfile && !isPreviewMode) {
       navigate('/profile');
       return;
     }
     fetchUserData();
-  }, [userId, isOwnProfile]);
+  }, [userId, isOwnProfile, isPreviewMode]);
 
   useEffect(() => {
     if (user && userId && !isOwnProfile) {
@@ -191,6 +193,30 @@ export default function UserProfile() {
 
   return (
     <div className="min-h-screen bg-stone-950">
+      {/* Preview Mode Banner */}
+      {isOwnProfile && isPreviewMode && (
+        <div className="bg-yellow-500 text-stone-900 py-3 px-4">
+          <div className="container mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <span className="font-semibold">You're viewing your public profile as others see it</span>
+            </div>
+            <Link 
+              to="/profile" 
+              className="flex items-center gap-1 bg-stone-900 text-white px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-stone-800 transition"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back to Profile
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Hero Banner */}
       <div className="relative h-48 md:h-64 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500">
         <div className="absolute inset-0 bg-black/30"></div>
@@ -219,7 +245,7 @@ export default function UserProfile() {
             </div>
 
             {/* Follow Button */}
-            {!isOwnProfile && (
+            {!isOwnProfile && user && (
               <div className="mt-6">
                 <button
                   onClick={handleFollow}
